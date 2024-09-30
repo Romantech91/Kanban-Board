@@ -1,6 +1,14 @@
 import { UserLogin } from "../interfaces/UserLogin";
 
-const login = async (userInfo: UserLogin) => {
+interface LoginResponse {
+  token: string;
+  user: {
+    id: number;
+    username: string;
+  };
+}
+
+const login = async (userInfo: UserLogin): Promise<LoginResponse> => {
   try {
     const response = await fetch('/auth/login', {
       method: 'POST',
@@ -9,19 +17,19 @@ const login = async (userInfo: UserLogin) => {
       },
       body: JSON.stringify(userInfo),
     });
+
     if (!response.ok) {
       const errorMessage = await response.json();
       throw new Error(errorMessage.message);
     }
-    const data = await response.json();
+
+    const data: LoginResponse = await response.json();
     return data;
+
   } catch (error) {
-    console.log('Error in login', error);
-    return Promise.reject('Something went wrong');
+    console.error('Error in login:', error);
+    throw new Error('Unable to login. Please try again later.');
   }
-  // TODO: make a POST request to the login route
-}
-
-
+};
 
 export { login };
