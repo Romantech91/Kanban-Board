@@ -1,48 +1,46 @@
  import { JwtPayload, jwtDecode } from 'jwt-decode';
 
-class AuthService {
-  getProfile() {
+ class AuthService {
+  // Gets the decoded token
+  getProfile(): JwtPayload | null {
     const token = this.getToken();
     return token ? jwtDecode<JwtPayload>(token) : null;
-    // TODO: return the decoded token
   }
 
-  loggedIn() {
+  // Check if the user is logged in by verifying the token's existence and validity
+  loggedIn(): boolean {
     const token = this.getToken();
     return !!token && !this.isTokenExpired(token);
-    // TODO: return a value that indicates if the user is logged in
   }
-  
-  isTokenExpired(token: string) {
+
+  // Check if the token is expired
+  isTokenExpired(token: string): boolean {
     try {
-      const decoded = jwtDecode<JwtPayload>(token);
+      const decoded: JwtPayload = jwtDecode<JwtPayload>(token);
       if (decoded.exp && decoded.exp * 1000 < Date.now()) {
-        return true;
+        return true; // Token has expired
       }
-      return false;
-    // TODO: return a value that indicates if the token is expired
-  } catch (err) {
-    return false;
+      return false; // Token is still valid
+    } catch (err) {
+      return true; // If token decoding fails, consider it as expired
+    }
   }
-}
 
+  // Retrieve the JWT token from localStorage
   getToken(): string | null {
-    return localStorage.getItem('jwtToken') || '';
-    // TODO: return the token
+    return localStorage.getItem('jwtToken');
   }
 
-  login(idToken: string) {
+  // Store the JWT token in localStorage and redirect to the home page
+  login(idToken: string): void {
     localStorage.setItem('jwtToken', idToken);
-    window.location.assign('/');
-    // TODO: set the token to localStorage
-    // TODO: redirect to the home page
+    window.location.assign('/'); // Redirect to the home page
   }
 
-  logout() {
+  // Remove the JWT token from localStorage and redirect to the login page
+  logout(): void {
     localStorage.removeItem('jwtToken');
-    window.location.assign('/login');
-    // TODO: remove the token from localStorage
-    // TODO: redirect to the login page
+    window.location.assign('/login'); // Redirect to the login page
   }
 }
 
